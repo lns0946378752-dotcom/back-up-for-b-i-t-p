@@ -1,0 +1,348 @@
+{
+  "info": {
+    "name": "Buoi5 - CRUD SinhVien & Swagger",
+    "_postman_id": "c4-crud-swagger-buoi5",
+    "description": "Bộ kịch bản kiểm thử 12 ca bắt buộc cho RESTful CRUD SinhVien (Buổi 5 / Chương 4)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "T01. GET Danh sách sinh viên (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T01 - Status là 200', () => { pm.response.to.have.status(200); });",
+              "pm.test('T01 - Data là một mảng', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(true);",
+              "    pm.expect(b.data).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "T02. POST Thêm sinh viên SV003 hợp lệ (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T02 - Status là 201 Created', () => { pm.response.to.have.status(201); });",
+              "pm.test('T02 - Tạo sinh viên mới thành công', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(true);",
+              "    pm.expect(b.data.maSV).to.eql('SV003');",
+              "    pm.expect(b.data.hoTen).to.eql('Ngọc Mai');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV003\",\n  \"hoTen\": \"Ngọc Mai\",\n  \"email\": \"ngocmai@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "T03. POST Trùng mã SV003 lần hai (409)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T03 - Trùng mã trả về 409 Conflict', () => { pm.response.to.have.status(409); });",
+              "pm.test('T03 - Thông báo mã sinh viên đã tồn tại', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(false);",
+              "    pm.expect(b.message).to.include('Mã sinh viên đã tồn tại');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV003\",\n  \"hoTen\": \"Ngọc Mai\",\n  \"email\": \"ngocmai@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "T04. POST Mã mới thiếu hoTen (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T04 - Lỗi validation trả về 400', () => { pm.response.to.have.status(400); });",
+              "pm.test('T04 - Thông báo lỗi họ tên', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV099\",\n  \"email\": \"sv099@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "T05. GET Chi tiết SV003 sau khi tạo (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T05 - Đọc thành công SV003 status 200', () => { pm.response.to.have.status(200); });",
+              "pm.test('T05 - Đúng đủ 4 trường', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.data.maSV).to.eql('SV003');",
+              "    pm.expect(b.data.hoTen).to.eql('Ngọc Mai');",
+              "    pm.expect(b.data.email).to.eql('ngocmai@example.com');",
+              "    pm.expect(b.data.maLop).to.eql('25CT114');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV003",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV003"]
+        }
+      }
+    },
+    {
+      "name": "T06. PUT Cập nhật SV003 đủ ba trường (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T06 - Cập nhật thành công status 200', () => { pm.response.to.have.status(200); });",
+              "pm.test('T06 - Data phản hồi chứa giá trị cập nhật mới', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.data.hoTen).to.eql('Ngọc Mai Updated');",
+              "    pm.expect(b.data.email).to.eql('ngocmai@example.com');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hoTen\": \"Ngọc Mai Updated\",\n  \"email\": \"ngocmai@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV003",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV003"]
+        }
+      }
+    },
+    {
+      "name": "T07. PUT SV003 thiếu email (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T07 - Thiếu trường bắt buộc trả 400', () => { pm.response.to.have.status(400); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hoTen\": \"Ngọc Mai Loi\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV003",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV003"]
+        }
+      }
+    },
+    {
+      "name": "T08. PUT SV9999 không tồn tại (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T08 - Không tìm thấy sinh viên trả 404', () => { pm.response.to.have.status(404); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hoTen\": \"Khong Ton Tai\",\n  \"email\": \"khong@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV9999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV9999"]
+        }
+      }
+    },
+    {
+      "name": "T09. GET SV9999 kiểm tra không bị tạo (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T09 - GET mã không tồn tại trả 404', () => { pm.response.to.have.status(404); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV9999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV9999"]
+        }
+      }
+    },
+    {
+      "name": "T10. DELETE SV003 (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T10 - Xóa thành công trả 200', () => { pm.response.to.have.status(200); });",
+              "pm.test('T10 - Thông báo xóa thành công', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(true);",
+              "    pm.expect(b.message).to.eql('Xóa sinh viên thành công');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV003",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV003"]
+        }
+      }
+    },
+    {
+      "name": "T11. GET SV003 sau khi xóa (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T11 - Sinh viên đã xóa tìm không thấy (404)', () => { pm.response.to.have.status(404); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV003",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV003"]
+        }
+      }
+    },
+    {
+      "name": "T12. DELETE SV003 lần hai (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('T12 - Xóa lại sinh viên không tồn tại trả 404', () => { pm.response.to.have.status(404); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV003",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV003"]
+        }
+      }
+    }
+  ]
+}
