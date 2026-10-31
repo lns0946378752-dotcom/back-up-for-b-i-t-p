@@ -1,0 +1,362 @@
+{
+  "info": {
+    "name": "Buoi6 - Validation Zod & Morgan",
+    "_postman_id": "c5-validation-morgan-buoi6",
+    "description": "Bộ kịch bản kiểm thử 12 ca bắt buộc cho Validation Middleware (Zod) và Logging (Morgan) - Buổi 06",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "V01. POST SV006 hợp lệ (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V01 - Status là 201 Created', () => { pm.response.to.have.status(201); });",
+              "pm.test('V01 - Dữ liệu sinh viên được tạo thành công', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(true);",
+              "    pm.expect(b.data.maSV).to.eql('SV006');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV006\",\n  \"hoTen\": \"Nguyễn Minh An\",\n  \"email\": \"minhan@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "V02. POST thiếu hoTen (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V02 - Status là 400 Bad Request', () => { pm.response.to.have.status(400); });",
+              "pm.test('V02 - Báo lỗi thiếu họ tên trong errors', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(false);",
+              "    pm.expect(b.errors.some(e => e.field === 'hoTen')).to.eql(true);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV007\",\n  \"email\": \"minhan7@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "V03. POST email không đúng định dạng (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V03 - Status là 400 Bad Request', () => { pm.response.to.have.status(400); });",
+              "pm.test('V03 - errors có field là email', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(false);",
+              "    pm.expect(b.errors.some(e => e.field === 'email')).to.eql(true);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV007\",\n  \"hoTen\": \"Lê Văn Thử\",\n  \"email\": \"khong-phai-email\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "V04. POST có thêm trường lạ role admin (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V04 - Strict mode từ chối trường lạ trả 400', () => { pm.response.to.have.status(400); });",
+              "pm.test('V04 - Báo lỗi trường role không được phép', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.success).to.eql(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV008\",\n  \"hoTen\": \"Người Dùng Lạ\",\n  \"email\": \"la@example.com\",\n  \"maLop\": \"25CT114\",\n  \"role\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "V05. PUT SV006 thiếu email (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V05 - PUT thiếu trường email trả về 400', () => { pm.response.to.have.status(400); });",
+              "pm.test('V05 - Báo lỗi field email', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.errors.some(e => e.field === 'email')).to.eql(true);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hoTen\": \"Nguyễn Minh An Sửa\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV006",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV006"]
+        }
+      }
+    },
+    {
+      "name": "V06. PUT SV006 đủ 3 trường hợp lệ (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V06 - Status là 200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('V06 - Dữ liệu đã cập nhật họ tên mới', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.data.hoTen).to.eql('Nguyễn Minh An Updated');",
+              "    pm.expect(b.data.email).to.eql('an.updated@example.com');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hoTen\": \"Nguyễn Minh An Updated\",\n  \"email\": \"an.updated@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV006",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV006"]
+        }
+      }
+    },
+    {
+      "name": "V07. PUT SV006 email sai kiểu số (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V07 - Email sai kiểu trả về 400', () => { pm.response.to.have.status(400); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hoTen\": \"Nguyễn Minh An\",\n  \"email\": 12345,\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV006",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV006"]
+        }
+      }
+    },
+    {
+      "name": "V08. POST SV006 đã tồn tại (409)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V08 - Trùng mã trả về 409 Conflict', () => { pm.response.to.have.status(409); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"maSV\": \"SV006\",\n  \"hoTen\": \"Nguyễn Minh An\",\n  \"email\": \"minhan@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "V09. PUT SV9999 không tồn tại (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V09 - Không tìm thấy mã trả về 404', () => { pm.response.to.have.status(404); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hoTen\": \"Không Tồn Tại\",\n  \"email\": \"khong@example.com\",\n  \"maLop\": \"25CT114\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV9999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV9999"]
+        }
+      }
+    },
+    {
+      "name": "V10. GET Danh sách sinh viên (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V10 - Lấy danh sách thành công trả 200', () => { pm.response.to.have.status(200); });",
+              "pm.test('V10 - Data là một mảng', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.data).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien"]
+        }
+      }
+    },
+    {
+      "name": "V11. GET Health Check kiểm tra logs (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V11 - Health Check trả về 200 OK', () => { pm.response.to.have.status(200); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "V12. GET Chi tiết SV006 kiểm tra sau restart (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('V12 - Đọc SV006 trả về 200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('V12 - Đúng họ tên đã cập nhật', () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b.data.hoTen).to.eql('Nguyễn Minh An Updated');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/sinh-vien/SV006",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "sinh-vien", "SV006"]
+        }
+      }
+    }
+  ]
+}
