@@ -1,0 +1,381 @@
+{
+	"info": {
+		"_postman_id": "c8080808-8888-4888-8888-888888888888",
+		"name": "Chương 08 - Pagination, Search & Global Error Handling",
+		"description": "Bộ sưu tập kiểm thử tự động Chương 08: Phân trang, Tìm kiếm Sequelize SQL Server và Xử lý lỗi tập trung Express 5",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Lab 1 - Pagination & Search",
+			"item": [
+				{
+					"name": "P01 - GET Danh sách mặc định (page=1, limit=10)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P02 - GET Trang 1 limit=2 (Tối đa 2 bản ghi đầu)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?page=1&limit=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P03 - GET Trang 2 limit=2 (2 bản ghi tiếp theo)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?page=2&limit=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P04 - GET Trang 3 limit=2 (Trang cuối)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?page=3&limit=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "3"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P05 - GET Trang vượt quá (page=999, limit=2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?page=999&limit=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "999"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P11 - GET Tìm kiếm theo tên (search=Anh)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?search=Anh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Anh"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P12 - GET Tìm kiếm kết hợp phân trang (search=Anh&page=1&limit=2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?search=Anh&page=1&limit=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Anh"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P13 - GET Tìm kiếm từ khóa không có kết quả",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?search=khongco",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "khongco"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "P14 - GET Tìm kiếm có khoảng trắng (tự động trim)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?search=%20Anh%20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": " Anh "
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lab 2 - Error Handling (400, 404, 500)",
+			"item": [
+				{
+					"name": "E01 - Lỗi page âm (page=-1 -> 400)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?page=-1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "-1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "E02 - Lỗi limit không phải số (limit=abc -> 400)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?limit=abc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "abc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "E02b - Lỗi limit vượt quá 50 (limit=51 -> 400)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien?limit=51",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "51"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "E03 - Lỗi không tìm thấy sinh viên (GET /:maSV -> 404)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/sinh-vien/SV999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sinh-vien",
+								"SV999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "E04 - Lỗi đường dẫn không tồn tại (404 Fallback)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/duong-dan-khong-co",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"duong-dan-khong-co"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000"
+		}
+	]
+}

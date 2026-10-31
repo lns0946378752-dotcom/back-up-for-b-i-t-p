@@ -1,0 +1,350 @@
+import fs from 'fs';
+import path from 'path';
+
+const collection = {
+  info: {
+    _postman_id: 'c8d9e0f1-2a3b-4c5d-6e7f-8a9b0c1d2e3f',
+    name: 'Buoi8-Multer-Upload',
+    schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+  },
+  variable: [
+    { key: 'baseUrl', value: 'http://localhost:5000', type: 'string' },
+    { key: 'studentToken', value: '', type: 'string' },
+    { key: 'adminToken', value: '', type: 'string' },
+  ],
+  item: [
+    {
+      name: '00. Lay Token Test (Login)',
+      item: [
+        {
+          name: 'Login Student (Lay studentToken)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: [
+                  'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });',
+                  'var json = pm.response.json();',
+                  'if (json.data && json.data.accessToken) { pm.collectionVariables.set("studentToken", json.data.accessToken); }',
+                ],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: {
+              mode: 'raw',
+              raw: JSON.stringify(
+                { email: 'an.lab@example.com', password: 'SinhVien@123' },
+                null,
+                2
+              ),
+            },
+            url: { raw: '{{baseUrl}}/api/auth/login', host: ['{{baseUrl}}'], path: ['api', 'auth', 'login'] },
+          },
+        },
+        {
+          name: 'Login Admin (Lay adminToken)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: [
+                  'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });',
+                  'var json = pm.response.json();',
+                  'if (json.data && json.data.accessToken) { pm.collectionVariables.set("adminToken", json.data.accessToken); }',
+                ],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: {
+              mode: 'raw',
+              raw: JSON.stringify(
+                { email: 'admin.lab@example.com', password: 'Admin@Secure2026!' },
+                null,
+                2
+              ),
+            },
+            url: { raw: '{{baseUrl}}/api/auth/login', host: ['{{baseUrl}}'], path: ['api', 'auth', 'login'] },
+          },
+        },
+      ],
+    },
+    {
+      name: '01. Upload Avatar Tests (U01 - U12)',
+      item: [
+        {
+          name: 'U01 - Upload Avatar PNG hop le + Student JWT (200)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: [
+                  'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });',
+                  'var json = pm.response.json();',
+                  'pm.test("Has avatarUrl", function () { pm.expect(json.data.avatarUrl).to.include("/uploads/"); });',
+                ],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U02 - Upload Avatar JPEG hop le (200)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U03 - Upload khong co Authorization header (401)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 401 Unauthorized", function () { pm.response.to.have.status(401); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U04 - Upload voi JWT sai chu ky (401)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 401 Unauthorized", function () { pm.response.to.have.status(401); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer token_gia_mao' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U05 - Upload body thieu file (400)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 400 Bad Request", function () { pm.response.to.have.status(400); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U06 - Upload sai key thanh photo thay vi avatar (400)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 400 Bad Request", function () { pm.response.to.have.status(400); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'photo', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U07 - Upload file vuot qua 2MB (413 Payload Too Large)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 413 Payload Too Large", function () { pm.response.to.have.status(413); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U08 - Upload file TXT doi duoi .png (400)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 400 Bad Request", function () { pm.response.to.have.status(400); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U09 - Upload file .gif / dinh dang khong chap nhan (400)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 400 Bad Request", function () { pm.response.to.have.status(400); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U10 - Upload lan 2 cap nhat URL moi (200)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [{ key: 'avatar', type: 'file', src: [] }],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U11 - Student A gui kem userId cua B trong body (200 - Chi A doi)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: [
+                  'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });',
+                ],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'POST',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            body: {
+              mode: 'formdata',
+              formdata: [
+                { key: 'avatar', type: 'file', src: [] },
+                { key: 'userId', value: '1', type: 'text' },
+              ],
+            },
+            url: { raw: '{{baseUrl}}/api/auth/me/avatar', host: ['{{baseUrl}}'], path: ['api', 'auth', 'me', 'avatar'] },
+          },
+        },
+        {
+          name: 'U12 - GET Profile kiem tra avatarUrl duoc luu (200)',
+          event: [
+            {
+              listen: 'test',
+              script: {
+                exec: [
+                  'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });',
+                  'var json = pm.response.json();',
+                  'pm.test("Has valid avatarUrl", function () { pm.expect(json.data.avatarUrl).to.not.be.null; });',
+                ],
+                type: 'text/javascript',
+              },
+            },
+          ],
+          request: {
+            method: 'GET',
+            header: [{ key: 'Authorization', value: 'Bearer {{studentToken}}' }],
+            url: { raw: '{{baseUrl}}/api/auth/profile', host: ['{{baseUrl}}'], path: ['api', 'auth', 'profile'] },
+          },
+        },
+      ],
+    },
+  ],
+};
+
+const outputPath = path.resolve('postman/Buoi8-Multer-Upload.postman_collection.json');
+fs.writeFileSync(outputPath, JSON.stringify(collection, null, 2), 'utf8');
+console.log('Postman collection created at:', outputPath);
